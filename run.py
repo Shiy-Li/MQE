@@ -5,7 +5,6 @@ from train import train
 from sklearn.neighbors import kneighbors_graph
 import warnings
 import numpy as np
-import json
 
 
 def get_knn_graph(x, num_neighbor, knn_metric='cosine'):
@@ -32,47 +31,8 @@ def parameter_parser():
     return args
 
 
-def polluted_feat(x, alpha, noise_type, beta):
-    rnd_generator = np.random.RandomState(0)
-    data_tmp = x.cpu().numpy()
-    print('original', data_tmp.sum())
-    num_sample, num_feat = data_tmp.shape[0], data_tmp.shape[1]
-    num_noisy_samples = int(alpha * num_sample)
-    noisy_indices = rnd_generator.choice(num_sample, num_noisy_samples, replace=False)
-    clean_indices = np.setdiff1d(np.arange(num_sample), noisy_indices)
-    print('noisy_indices', len(noisy_indices))
-    print('clean_indices', len(clean_indices))
-    if noise_type == 'uniform':
-        print('uniform noise !', beta)
-        noise = np.random.uniform(0, 1, data_tmp.shape)
-    elif noise_type == 'normal':
-        print('normal noise !', beta)
-        noise = np.random.normal(0, 1, data_tmp.shape)
-    data_tmp[noisy_indices] += beta * noise[noisy_indices]
-    print('pollted', data_tmp.sum())
-    return data_tmp, noisy_indices, clean_indices
-
-
-def load_best_params(model, dataset, alpha, noise_type, beta, path='./best_params/'):
-    save_file = f'best_results_{model}_{dataset}.json'
-    file_path = path + save_file
-    try:
-        with open(file_path, 'r') as f:
-            results = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        print(f"Error: Unable to load results from {file_path}")
-        return None
-    key_str = f"{alpha}_{beta}_{noise_type}"
-    if model in results and key_str in results[model]:
-        best_params = results[model][key_str]['best_params']
-        return best_params
-    else:
-        print(f"No best params found for model '{model}', dataset '{dataset}', alpha '{alpha}', noise_type '{noise_type}', beta '{beta}'")
-        return None
-
-
 def main(model_name, ntrials, data_name, beta, noise_type, alpha):
-    # Load best_params.yaml
+    # Load best_params.json
     best_params = load_best_params(model_name, data_name, alpha, noise_type, beta)
     if not best_params:
         print('Use the default params')
@@ -80,7 +40,7 @@ def main(model_name, ntrials, data_name, beta, noise_type, alpha):
         lr, epochs, h1_dim, h2_dim, z_dim, num_hops, num_k = 0.002, 800, 512, 32, 1024, 16, 40
     else:
         print('Use the saved params')
-        # Use the parameters from the YAML file
+        # Use the parameters from the JSON file
         lr, epochs, h1_dim, h2_dim, z_dim, num_hops, num_k = best_params
         print(best_params)
     warnings.filterwarnings("ignore")
@@ -141,4 +101,5 @@ alpha = 0.5
 ntrials = 5
 noise_type = 'normal'
 model = 'MQE'
-main(model, ntrials, data_name, beta, noise_type, alpha)
+avg_acc, std_acc = main(model, ntrials, data_name, beta, noise_type, alpha)
+print(f'Average Accuracy: {avg_acc}, Standard Deviation: {std_acc}')
