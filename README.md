@@ -21,11 +21,13 @@ pip install torch-geometric
 If you compare with, build on, or use aspects of this work, please cite the following:
 
 ```js/java/c#/text
-@article{li2024noise,
-  title={Noise-Resilient Unsupervised Graph Representation Learning via Multi-Hop Feature Quality Estimation},
-  author={Li, Shiyuan and Liu, Yixin and Chen, Qingfeng and Webb, Geoffrey I and Pan, Shirui},
-  journal={arXiv preprint arXiv:2407.19944},
-  year={2024}
+@inproceedings{li2024noise,
+author = {Li, Shiyuan and Liu, Yixin and Chen, Qingfeng and Webb, Geoffrey I. and Pan, Shirui},
+title = {Noise-Resilient Unsupervised Graph Representation Learning via Multi-Hop Feature Quality Estimation},
+year = {2024},
+doi = {10.1145/3627673.3679758},
+booktitle = {Proceedings of the 33rd ACM International Conference on Information and Knowledge Management},
+pages = {1255–1265},
 }
 ```
 
